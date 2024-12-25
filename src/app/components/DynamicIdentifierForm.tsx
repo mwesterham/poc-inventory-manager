@@ -10,11 +10,23 @@ export interface DynamicUPCFormProps {
   submitCallback?: (fields: FormEntry[]) => void;
 }
 
-const DynamicUPCForm = (props: DynamicUPCFormProps) => {
+const DynamicIdentifierForm = (props: DynamicUPCFormProps) => {
+  const submitKey = "\\";
   const [formEntrys, setFormEntrys] = useState<FormEntry[]>([
     { id: uuidv4(), value: "" },
   ]);
+  const formRef = useRef<HTMLFormElement>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if(event.key == submitKey) {
+        formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }))
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {window.removeEventListener('keydown', handleKeyDown);};
+  }, []);
 
   const handleInputChange = (id: string, value: string) => {
     setFormEntrys((prevFields) =>
@@ -32,6 +44,9 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
         { id: uuidv4(), value: "" },
       ]);
     }
+    if (e.key === submitKey) {
+      e.preventDefault();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,7 +59,7 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="p-4 space-y-4">
       {formEntrys.map((field, index) => (
         <div key={field.id} className="flex space-x-2">
           <input
@@ -53,7 +68,7 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
             value={field.value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             onKeyDown={(e) => handleKeyPress(e)}
-            placeholder={`UPC ${index + 1}`}
+            placeholder={`Identifier ${index + 1}`}
             ref={(el) => {
               inputRefs.current[index] = el; // Assign ref dynamically
               if(el && formEntrys.length - 1 == index) {
@@ -68,10 +83,10 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
         type="submit"
         className="px-4 py-2 bg-blue-500 text-white rounded-md"
       >
-        Submit
+        {`Press '${submitKey}' to Submit`}
       </button>
     </form>
   );
 };
 
-export default DynamicUPCForm;
+export default DynamicIdentifierForm;

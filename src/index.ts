@@ -10,9 +10,6 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 ipcMain.on('writeToUpcFile', (event, props: WriteToUpcFileProps) => {
   // write the input back to the client
-  const response: OnWriteToUpcFileResult = {
-    data: props
-  }
 
   const delimiter = "\n";
   const joinedString = props.csvLines
@@ -21,7 +18,13 @@ ipcMain.on('writeToUpcFile', (event, props: WriteToUpcFileProps) => {
     .join(delimiter);
   const csvString = joinedString.length > 0 ? joinedString + delimiter : joinedString;
   appendFile(props.filename, csvString, (err) => {
-    response.err = err;
+    const response: OnWriteToUpcFileResult = {
+      data: {
+        input: props,
+        csvString: csvString,
+      },
+      err: err,
+    }
     event.reply('writeToUpcFileResult', response);
   });
 })

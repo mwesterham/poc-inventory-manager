@@ -1,11 +1,10 @@
 import { useState } from "react";
-import DynamicUPCForm, { FormEntry } from "./components/DynamicUPCForm";
+import DynamicIdentifierForm, { FormEntry } from "./components/DynamicIdentifierForm";
 
 const DATA_FILE_NAME = "C:\\Users\\mwest\\Documents\\repos\\poc-inventory-manager\\upc_entries.csv";
 
 const App = () => {
-  const [formEntrys, setFormEntrys] = useState<FormEntry[]>([]);
-
+  const [csvString, setCsvString] = useState(null);
   // Function to save the file locally
   const saveToCSV = (entries: FormEntry[]) => {
     const timestamp = Date.now();
@@ -15,27 +14,24 @@ const App = () => {
 
     window.electronAPI.writeToUpcFile({
       csvLines: csvContent,
-      // filename: "C:/Users/mwest/Downloads/upc_entries.csv",
       filename: DATA_FILE_NAME,
     });
 
     window.electronAPI.onWriteToUpcFile((event: any, result) => {
       console.log(result);
+      setCsvString(result.data.csvString);
     });
   };
 
   const handleFormSubmit = (fields: FormEntry[]) => {
-    setFormEntrys(fields);
     saveToCSV(fields); // Save data to CSV upon submit
   };
 
   return <>
     <div>
-      <DynamicUPCForm submitCallback={handleFormSubmit}/>
+      <DynamicIdentifierForm submitCallback={handleFormSubmit}/>
     </div>
-    {formEntrys.map((entry, id) => <div id={`${id}`}>
-      {entry.value}
-    </div>)}
+    {csvString}
   </>
 }
 
