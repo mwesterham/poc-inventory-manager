@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 export interface FormEntry {
@@ -11,11 +11,19 @@ export  interface DynamicUPCFormProps {
 }
 
 const DynamicUPCForm = (props: DynamicUPCFormProps) => {
-  const defaultFormValues: FormEntry[] = [
-    { id: uuidv4(), value: "" },
-  ]
-  const [formEntrys, setFormEntrys] = useState<FormEntry[]>(defaultFormValues);
+  const defaultFormValue: FormEntry = { id: uuidv4(), value: "" };
+  const [formEntrys, setFormEntrys] = useState<FormEntry[]>([defaultFormValue]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const focusInput = () => {
+    // Focus the last input after state updates
+    setTimeout(() => {
+      const lastInput = inputRefs.current[inputRefs.current.length - 1];
+      if (lastInput) {
+        lastInput.focus();
+      }
+    }, 100);
+  }
 
   const handleInputChange = (id: string, value: string) => {
     setFormEntrys((prevFields) =>
@@ -29,26 +37,22 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
     if (e.key === "Enter") {
       e.preventDefault();
       setFormEntrys((prevFields) => {
-        const newField: FormEntry = { id: uuidv4(), value: "" };
         inputRefs.current[prevFields.length] = null; // Ensure the ref array grows
-        return [...prevFields, newField];
+        return [...prevFields, defaultFormValue];
       });
 
-      // Focus the last input after state updates
-      setTimeout(() => {
-        const lastInput = inputRefs.current[inputRefs.current.length - 1];
-        if (lastInput) {
-          lastInput.focus();
-        }
-      }, 0);
+      focusInput();
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     props.submitCallback(formEntrys);
-    inputRefs.current.length = 0;
-    setFormEntrys(defaultFormValues);
+    inputRefs.current.length = 0; // delete all elements
+    setFormEntrys((prevFields) => {
+      return [defaultFormValue];
+    });
+    focusInput();
   };
 
   return (
@@ -56,6 +60,7 @@ const DynamicUPCForm = (props: DynamicUPCFormProps) => {
       {formEntrys.map((field, index) => (
         <div key={field.id} className="flex space-x-2">
           <input
+            id={`${index}-input`}
             type="text"
             value={field.value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}

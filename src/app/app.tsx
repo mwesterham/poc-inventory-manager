@@ -9,7 +9,9 @@ const App = () => {
   // Function to save the file locally
   const saveToCSV = (entries: FormEntry[]) => {
     const timestamp = Date.now();
-    const csvContent = entries.map((entry) => `${entry.value},${timestamp}`);
+    const csvContent = entries
+      .filter((entry) => entry.value.length > 0)
+      .map((entry) => `${entry.value},${timestamp}`);
 
     window.electronAPI.writeToUpcFile({
       csvLines: csvContent,
