@@ -13,7 +13,14 @@ ipcMain.on('writeToUpcFile', (event, props: WriteToUpcFileProps) => {
   const response: OnWriteToUpcFileResult = {
     data: props
   }
-  appendFile(props.filename, props.csvLines.join("\n") + "\n", (err) => {
+
+  const delimiter = "\n";
+  const joinedString = props.csvLines
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join(delimiter);
+  const csvString = joinedString.length > 0 ? joinedString + delimiter : joinedString;
+  appendFile(props.filename, csvString, (err) => {
     response.err = err;
     event.reply('writeToUpcFileResult', response);
   });
