@@ -32,10 +32,10 @@ export interface OnWriteToFileResult extends Result {
 }
 
 const electronAPI = {
-  readFile: (props: ReadFileProps) => ipcRenderer.send('readFile', props),
+  readFile: async (props: ReadFileProps) => ipcRenderer.send('readFile', props),
   onReadFile: (callback: (event: any, values: OnReadFileResult) => void) => 
     ipcRenderer.on('readFileResult', (event, result) => callback(event, result)),
-  writeToFile: (props: WriteToFileProps) => ipcRenderer.send('writeToFile', props),
+  writeToFile: async (props: WriteToFileProps) => ipcRenderer.send('writeToFile', props),
   onWriteToFile: (callback: (event: any, values: OnWriteToFileResult) => void) => 
     ipcRenderer.on('writeToFileResult', (event, result) => callback(event, result)),
 }

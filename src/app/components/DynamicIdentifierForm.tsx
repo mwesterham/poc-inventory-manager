@@ -28,6 +28,10 @@ const DynamicIdentifierForm = (props: DynamicUPCFormProps) => {
     return () => {window.removeEventListener('keydown', handleKeyDown);};
   }, []);
 
+  const removeField = (id: string) => {
+    setFormEntrys((prevFields) => prevFields.filter((field) => field.id !== id));
+  };
+
   const handleInputChange = (id: string, value: string) => {
     setFormEntrys((prevFields) =>
       prevFields.map((field) =>
@@ -64,6 +68,7 @@ const DynamicIdentifierForm = (props: DynamicUPCFormProps) => {
         <div key={field.id} className="flex space-x-2">
           <input
             id={`${index}-input`}
+            disabled={index == formEntrys.length - 1 ? false : true}
             type="text"
             value={field.value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
@@ -77,6 +82,15 @@ const DynamicIdentifierForm = (props: DynamicUPCFormProps) => {
             }}
             className="p-2 border rounded-md w-full"
           />
+          {formEntrys.length != 1 && 
+            <button
+              type="button"
+              onClick={() => removeField(field.id)}
+              className="p-2 rounded-md focus:bg-slate-200"
+            >
+              X
+            </button>
+          }
         </div>
       ))}
       <button

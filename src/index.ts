@@ -8,7 +8,7 @@ import { OnReadFileResult, OnWriteToFileResult, ReadFileProps, WriteToFileProps 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-ipcMain.on('readFile', (event, props: ReadFileProps) => {
+ipcMain.on('readFile', async (event, props: ReadFileProps) => {
   const response: OnReadFileResult = {
     lines: []
   };
@@ -28,7 +28,7 @@ ipcMain.on('readFile', (event, props: ReadFileProps) => {
   event.reply('readFileResult', response);
 });
 
-ipcMain.on('writeToFile', (event, props: WriteToFileProps) => {
+ipcMain.on('writeToFile', async (event, props: WriteToFileProps) => {
   // write the input back to the client
 
   const delimiter = "\n";
@@ -57,8 +57,8 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 1200,
+    width: 1600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
