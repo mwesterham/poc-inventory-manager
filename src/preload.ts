@@ -9,20 +9,35 @@ declare global {
   }
 }
 
-export interface WriteToUpcFileProps {
+interface Result {
+  err?: any;
+}
+
+export interface ReadFileProps {
+  filename: string;
+  numlines?: number;
+}
+
+export interface OnReadFileResult extends Result {
+  lines: string[];
+}
+
+export interface WriteToFileProps {
   csvLines: string[];
   filename: string;
 }
 
-export interface OnWriteToUpcFileResult {
+export interface OnWriteToFileResult extends Result {
   data: any;
-  err?: any;
 }
 
 const electronAPI = {
-  writeToUpcFile: (props: WriteToUpcFileProps) => ipcRenderer.send('writeToUpcFile', props),
-  onWriteToUpcFile: (callback: (event: any, values: OnWriteToUpcFileResult) => void) => 
-    ipcRenderer.on('writeToUpcFileResult', (event, result) => callback(event, result)),
+  readFile: (props: ReadFileProps) => ipcRenderer.send('readFile', props),
+  onReadFile: (callback: (event: any, values: OnReadFileResult) => void) => 
+    ipcRenderer.on('readFileResult', (event, result) => callback(event, result)),
+  writeToFile: (props: WriteToFileProps) => ipcRenderer.send('writeToFile', props),
+  onWriteToFile: (callback: (event: any, values: OnWriteToFileResult) => void) => 
+    ipcRenderer.on('writeToFileResult', (event, result) => callback(event, result)),
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

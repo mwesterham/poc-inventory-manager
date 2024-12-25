@@ -59,7 +59,7 @@ const DynamicIdentifierForm = (props: DynamicUPCFormProps) => {
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="p-4 space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       {formEntrys.map((field, index) => (
         <div key={field.id} className="flex space-x-2">
           <input
