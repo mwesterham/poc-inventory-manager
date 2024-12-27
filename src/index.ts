@@ -8,47 +8,6 @@ import { OnReadFileResult, OnWriteToFileResult, ReadFileProps, WriteToFileProps 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-ipcMain.on('readFile', async (event, props: ReadFileProps) => {
-  const response: OnReadFileResult = {
-    lines: []
-  };
-
-  try {
-    const data = readFileSync(props.filename, 'utf8');
-    const lines = data.split('\n'); // Split by newline
-    response.lines = lines;
-  } catch (err) {
-    response.err = err;
-  }
-
-  if(props.numlines) {
-    response.lines = response.lines.splice(0, props.numlines);
-  }
-
-  event.reply('readFileResult', response);
-});
-
-ipcMain.on('writeToFile', async (event, props: WriteToFileProps) => {
-  // write the input back to the client
-
-  const delimiter = "\n";
-  const joinedString = props.csvLines
-    .map(line => line.trim())
-    .filter(line => line.length > 0)
-    .join(delimiter);
-  const csvString = joinedString.length > 0 ? joinedString + delimiter : joinedString;
-  appendFile(props.filename, csvString, (err) => {
-    const response: OnWriteToFileResult = {
-      data: {
-        input: props,
-        csvString: csvString,
-      },
-      err: err,
-    }
-    event.reply('writeToFileResult', response);
-  });
-});
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -95,3 +54,46 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+
+ipcMain.on('readFile', async (event, props: ReadFileProps) => {
+  const response: OnReadFileResult = {
+    lines: []
+  };
+  const path = `${app.getPath("userData")}\\${props.filename}`;
+  try {
+    const data = readFileSync(path, 'utf8');
+    const lines = data.split('\n'); // Split by newline
+    response.lines = lines;
+  } catch (err) {
+    response.err = err;
+  }
+
+  if(props.numlines) {
+    response.lines = response.lines.splice(0, props.numlines);
+  }
+
+  event.reply('readFileResult', response);
+});
+
+ipcMain.on('writeToFile', async (event, props: WriteToFileProps) => {
+  // write the input back to the client
+
+  const delimiter = "\n";
+  const joinedString = props.csvLines
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join(delimiter);
+  const path = `${app.getPath("userData")}\\${props.filename}`;
+  const csvString = joinedString.length > 0 ? joinedString + delimiter : joinedString;
+  appendFile(path, csvString, (err) => {
+    const response: OnWriteToFileResult = {
+      data: {
+        input: {...props, writePath: path},
+        csvString: csvString,
+      },
+      err: err,
+    }
+    event.reply('writeToFileResult', response);
+  });
+});

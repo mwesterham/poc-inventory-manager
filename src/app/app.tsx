@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import DynamicIdentifierForm, { FormEntry } from "./components/DynamicIdentifierForm";
 import DisplayTable from "./components/DataTable";
-import { OnReadFileResult } from "../preload";
+import { OnReadFileResult, OnWriteToFileResult } from "../preload";
 import { customFormatDate } from "./util/time";
 
-const DATA_FILE_NAME = "C:\\Users\\mwest\\Documents\\repos\\poc-inventory-manager\\upc_entries.csv";
+const DATA_FILE_NAME = "upc_entries.csv";
 const DELIM = ",";
 
 const App = () => {
@@ -16,8 +16,8 @@ const App = () => {
 
   // Setup listeners for file operations
   useEffect(() => {
-    const handleOnWriteToFile = () => {
-
+    const handleOnWriteToFile = (event: any, values: OnWriteToFileResult) => {
+      console.log(values);
     };
     window.electronAPI.onWriteToFile(handleOnWriteToFile);
   }, []);
